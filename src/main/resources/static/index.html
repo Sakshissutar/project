@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Management</title>
+</head>
+<body>
+    <h1>Employee Management</h1>
+
+    <!-- Add Employee Form -->
+    <h2>Add Employee</h2>
+    <form id="addForm">
+        ID: <input type="text" id="addId" required><br>
+        Name: <input type="text" id="addName" required><br>
+        Email: <input type="email" id="addEmail" required><br>
+        <button type="submit">Add Employee</button>
+    </form>
+
+    <!-- Find Employee Form -->
+    <h2>Find Employee</h2>
+    <form id="findForm">
+        Find by ID: <input type="text" id="findId" required>
+        <button type="submit">Find Employee</button>
+    </form>
+    <div id="foundEmployee" style="display: none;">
+        <h3>Found Employee:</h3>
+        <p><strong>ID:</strong> <span id="foundId"></span></p>
+        <p><strong>Name:</strong> <span id="foundName"></span></p>
+        <p><strong>Email:</strong> <span id="foundEmail"></span></p>
+    </div>
+
+    <!-- Delete Employee Form -->
+    <h2>Delete Employee</h2>
+    <form id="deleteForm">
+        Delete by ID: <input type="text" id="deleteId" required>
+        <button type="submit">Delete Employee</button>
+    </form>
+
+    <!-- Update Employee Form -->
+    <h2>Update Employee</h2>
+    <form id="updateForm">
+        ID: <input type="text" id="updateId" required><br>
+        New Name: <input type="text" id="updateName" required><br>
+        New Email: <input type="email" id="updateEmail" required><br>
+        <button type="submit">Update Employee</button>
+    </form>
+
+    <h2>Employee List</h2>
+    <ul id="employeeList"></ul>
+
+    <script src="script.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const addForm = document.getElementById("addForm");
+        const findForm = document.getElementById("findForm");
+        const deleteForm = document.getElementById("deleteForm");
+        const updateForm = document.getElementById("updateForm");
+        const employeeList = document.getElementById("employeeList");
+        const foundEmployee = document.getElementById("foundEmployee");
+    
+        // Function to fetch and display employee list
+        function fetchEmployeeList() {
+            
+            fetch('http://localhost:8383/employee/all')
+                .then(response=>{
+                    if(response.ok){
+                        return response.json();
+                    }
+                    else{
+                        throw new Error('Erro:' +response.status);
+                    }
+                })
+                .then(data=>{
+                    employeeList.innerHTML='';
+                    data.forEach(employee=>{
+                        const li=document.createElement('li');
+                        li.textContent = `id: ${employee.id}, name: ${employee.name}, email: ${employee.email}`;
+                        employeeList.appendChild(li);
+                    });
+                })
+                .catch(error => console.error(error));
+            }
+    
+        // Add Employee
+        addForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+    
+            const id = document.getElementById("addId").value;
+            const name = document.getElementById("addName").value;
+            const email = document.getElementById("addEmail").value;
+    
+            fetch("http://localhost:8383/employee/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, name, email })
+            }).then(() => {
+                fetchEmployeeList();
+                addForm.reset();
+            });
+            
+        });
+    
+        // Find Employee
+        findForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+    
+            const findId = document.getElementById("findId").value;
+    
+            fetch(`http://localhost:8383/employee/find/${findId}`)
+                .then(response => response.json())
+                .then(employee => {
+                    foundEmployee.style.display = "block";
+                    document.getElementById("foundId").textContent = employee.id;
+                    document.getElementById("foundName").textContent = employee.name;
+                    document.getElementById("foundEmail").textContent = employee.email;
+                })
+                .catch(error => {
+                foundEmployee.style.display = "none";
+                console.error("Employee not found:", error);
+            });
+                
+        });
+    
+        // Delete Employee
+        deleteForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+    
+            const deleteId = document.getElementById("deleteId").value;
+    
+            fetch(`http://localhost:8383/employee/delete/${deleteId}`, {
+                method: "DELETE"
+            }).then(() => {
+                fetchEmployeeList();
+                deleteForm.reset();
+            });
+        });
+    
+        // Update Employee
+        updateForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+    
+            const updateId = document.getElementById("updateId").value;
+            const updateName = document.getElementById("updateName").value;
+            const updateEmail = document.getElementById("updateEmail").value;
+    
+            fetch(`http://localhost:8383/employee/edit/${updateId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: updateId, name: updateName, email: updateEmail })
+            }).then(() => {
+                fetchEmployeeList();
+                updateForm.reset();
+            });
+        });
+    
+        // Initial fetching of employee list
+        fetchEmployeeList();
+    });
+</script>
+</body>
+</html>
