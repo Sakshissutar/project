@@ -60,7 +60,7 @@
         // Function to fetch and display employee list
         function fetchEmployeeList() {
             
-            fetch('http://localhost:8383/employee/all')
+            fetch('http://localhost:8484/employee/all')
                 .then(response=>{
                     if(response.ok){
                         return response.json();
@@ -88,7 +88,7 @@
             const name = document.getElementById("addName").value;
             const email = document.getElementById("addEmail").value;
     
-            fetch("http://localhost:8383/employee/save", {
+            fetch("http://localhost:8484/employee/save", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id, name, email })
@@ -105,7 +105,7 @@
     
             const findId = document.getElementById("findId").value;
     
-            fetch(`http://localhost:8383/employee/find/${findId}`)
+            fetch(`http://localhost:8484/employee/find/${findId}`)
                 .then(response => response.json())
                 .then(employee => {
                     foundEmployee.style.display = "block";
@@ -126,7 +126,7 @@
     
             const deleteId = document.getElementById("deleteId").value;
     
-            fetch(`http://localhost:8383/employee/delete/${deleteId}`, {
+            fetch(`http://localhost:8484/employee/delete/${deleteId}`, {
                 method: "DELETE"
             }).then(() => {
                 fetchEmployeeList();
@@ -142,7 +142,7 @@
             const updateName = document.getElementById("updateName").value;
             const updateEmail = document.getElementById("updateEmail").value;
     
-            fetch(`http://localhost:8383/employee/edit/${updateId}`, {
+            fetch(`http://localhost:8484/employee/edit/${updateId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id: updateId, name: updateName, email: updateEmail })
